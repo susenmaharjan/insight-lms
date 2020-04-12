@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using InsightWorkshop.Lms.Repositories.Interface;
+using InsightWorkshop.Lms.Repositories.Service;
+using InsightWorkshop.Lms.Services.Interface;
+using InsightWorkshop.Lms.Services.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace InsightWorkshop.Lms
 {
@@ -24,6 +25,12 @@ namespace InsightWorkshop.Lms
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IInventoryRepository, InventoryRepository>();
+
+            services.AddTransient<IDbConnection>((sp) =>
+           new SqlConnection(this.Configuration.GetConnectionString("DefaultConnection"))
+       );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
