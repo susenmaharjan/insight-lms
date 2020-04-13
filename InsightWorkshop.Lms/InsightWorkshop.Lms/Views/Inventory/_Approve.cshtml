@@ -1,0 +1,30 @@
+﻿@model IEnumerable<ApproveRecordsData>
+
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>User</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ToList())
+        {
+            <tr>
+                <td>@item.BookTitle</td>
+                <td>@item.Username</td>
+
+                <td>@Html.ActionLink("Approve", "Approve", new { recordId = item.RecordId })</td> 
+            </tr>
+
+        }
+    </tbody>
+</table>

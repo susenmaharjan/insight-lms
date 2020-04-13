@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
-namespace InsightWorkshop.Lms.Repositories.Service
+namespace InsightWorkshop.Lms.Repositories.Repository
 {
     public class InventoryRepository : IInventoryRepository
     {
@@ -29,9 +29,36 @@ namespace InsightWorkshop.Lms.Repositories.Service
             return true;
         }
 
+        public async Task ApproveRecord(Records record)
+        {
+            await _db.ExecuteAsync("procApproveBook", new
+            {
+                record.Id,
+                record.ApprovedOn,
+                record.Expiry
+            }, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task BorrowBook(Records records)
+        {
+            await _db.ExecuteAsync("procBorrowBook", new
+            {
+                records.UserId,
+                records.BookId
+            }, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task DeleteBookById(int id)
         {
             await _db.ExecuteAsync("procDeleteBookById", new { Id = id }, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<ApproveRecordsData>> GetApprovedRecordsByUser(int userId)
+        {
+            IEnumerable<ApproveRecordsData> records;
+            records = await _db.QueryAsync<ApproveRecordsData>("procGetApprovedRecordsByUser", new { UserId = userId }, commandType: CommandType.StoredProcedure);
+
+            return records;
         }
 
         public async Task<Book> GetBookById(int id)
@@ -49,6 +76,30 @@ namespace InsightWorkshop.Lms.Repositories.Service
             return books;
         }
 
+        public async Task<Records> GetRecordById(int recordId)
+        {
+            Records record;
+            record = await _db.QueryFirstOrDefaultAsync<Records>("procGetRecordById", new { Id = recordId }, commandType: CommandType.StoredProcedure);
+            return record;
+        }
+
+        public async Task<IEnumerable<ApproveRecordsData>> GetUnapprovedRecords()
+        {
+            IEnumerable<ApproveRecordsData> records;
+            records = await _db.QueryAsync<ApproveRecordsData>("procGetUnapprovedRecords", commandType: CommandType.StoredProcedure);
+
+            return records;
+        }
+
+        public async Task ReturnBook(Records record)
+        {
+            await _db.ExecuteAsync("procReturnBook", new
+            {
+                record.Id,
+                record.ReturnStatus
+            }, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task Update(Book book)
         {
             await _db.ExecuteAsync("procUpdateBook", new
@@ -62,5 +113,7 @@ namespace InsightWorkshop.Lms.Repositories.Service
             commandType: CommandType.StoredProcedure
             );
         }
+
+
     }
 }

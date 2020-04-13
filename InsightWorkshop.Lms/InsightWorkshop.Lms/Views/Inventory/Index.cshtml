@@ -1,37 +1,44 @@
-﻿@model IEnumerable<InsightWorkshop.Lms.Models.Book>
+﻿@using InsightWorkshop.Lms.ViewModels;
+
+@model InventoryViewModel
 
 @{
     ViewData["Title"] = "Index";
 }
+<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
 
 <h1>Books</h1>
 
+
 <p>
-    <a asp-action="Create">Create New</a>
+    @if (Model.Role == UserEnum.Admin)
+    {
+        <a asp-action="Create">Create New</a>
+    }
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+                Id
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                TItle
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Author)
+                Author
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantity)
+                Quantity
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Availability)
+                Availability
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Books)
         {
             <tr>
                 <td>
@@ -49,12 +56,37 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Availability)
                 </td>
-                <td>
-                    @Html.ActionLink("Update", "Update", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-                </td>
+                @if (ViewBag.UserRole == UserEnum.Admin)
+                {
+                    <td>
+                        @Html.ActionLink("Update", "Update", new { id = item.Id }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                    </td>
+                }
+                else
+                {
+                    @if (item.Availability && item.Quantity > 0)
+                    {
+                        <td>
+                            @Html.ActionLink("Borrow", "Borrow", new Records { BookId = item.Id })
+                        </td>
+                    }
+                    else
+                    {
+                        <td>Out of stock</td>
+                    }
+                }
             </tr>
         }
     </tbody>
+
+    @if (Model.Role == UserEnum.Admin)
+    {
+        <partial name="_Approve" model="Model.Records"/>
+    }
+    else if (Model.Role == UserEnum.User)
+    {
+        <partial name="_Return" model="Model.Records"/>
+    }
 </table>

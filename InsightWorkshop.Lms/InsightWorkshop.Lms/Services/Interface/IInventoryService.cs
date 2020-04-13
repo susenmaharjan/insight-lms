@@ -11,5 +11,10 @@ namespace InsightWorkshop.Lms.Services.Interface
         Task<Book> GetBookById(int id);
         Task Update(Book book);
         Task DeleteBookById(int id);
+        Task BorrowBook(Records records);
+        Task ApproveRecord(int recordId);
+        Task ReturnBook(int recordId);
+        Task<IEnumerable<ApproveRecordsData>> GetUnapprovedRecords();
+        Task<IEnumerable<ApproveRecordsData>> GetApprovedRecordsByUser(int userId);
     }
 }
