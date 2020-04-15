@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<ApproveRecordsData>
 
+
 <table class="table">
     <thead>
         <tr>
             <th>Title</th>
             <th>User</th>
-            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -14,8 +14,6 @@
             <tr>
                 <td>@item.BookTitle</td>
                 <td>@item.Username</td>
-
-                <td>@Html.ActionLink("Approve", "Approve", new { recordId = item.RecordId })</td> 
             </tr>
 
         }

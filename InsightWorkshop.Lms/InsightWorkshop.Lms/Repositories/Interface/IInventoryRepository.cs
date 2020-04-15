@@ -1,4 +1,5 @@
 ﻿using InsightWorkshop.Lms.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,5 +18,7 @@ namespace InsightWorkshop.Lms.Repositories.Interface
         Task<IEnumerable<ApproveRecordsData>> GetUnapprovedRecords();
         Task<Records> GetRecordById(int recordId);
         Task<IEnumerable<ApproveRecordsData>> GetApprovedRecordsByUser(int userId);
+        Task<IEnumerable<ApproveRecordsData>> GetReturnedRecords();
+        Task<IEnumerable<LateRecords>> GetLateRecordsByDate(DateTime dateTime);
     }
 }

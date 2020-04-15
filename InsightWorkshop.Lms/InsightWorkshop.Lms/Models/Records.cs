@@ -21,4 +21,9 @@ namespace InsightWorkshop.Lms.Models
         public string Username { get; set; }
 
     }
+
+    public class LateRecords : ApproveRecordsData
+    {
+        public string Email { get; set; }
+    }
 }

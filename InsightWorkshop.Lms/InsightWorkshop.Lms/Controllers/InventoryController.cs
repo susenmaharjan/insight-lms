@@ -7,6 +7,7 @@ using InsightWorkshop.Lms.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace InsightWorkshop.Lms.Controllers
 {
@@ -17,12 +18,14 @@ namespace InsightWorkshop.Lms.Controllers
         private readonly IHttpContextAccessor _context;
         private readonly string username;
         private readonly int userId;
+        private readonly ILogger<InventoryController> _logger;
         public UserEnum UserRole { get; set; }
 
-        public InventoryController(IInventoryService service, IHttpContextAccessor httpContextAccessor)
+        public InventoryController(IInventoryService service, IHttpContextAccessor httpContextAccessor, ILogger<InventoryController> logger)
         {
             _service = service;
             _context = httpContextAccessor;
+            _logger = logger;
 
             var userRole = _context.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
             username = _context.HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -36,7 +39,6 @@ namespace InsightWorkshop.Lms.Controllers
             {
                 UserRole = UserEnum.User;
             }
-
 
         }
 
@@ -52,6 +54,8 @@ namespace InsightWorkshop.Lms.Controllers
             if (UserRole == UserEnum.Admin)
             {
                 viewModel.Records = await _service.GetUnapprovedRecords();
+
+                viewModel.Returns = await _service.GetReturnedRecords();
             }
             else if (UserRole == UserEnum.User)
             {
@@ -70,62 +74,143 @@ namespace InsightWorkshop.Lms.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Book book)
         {
-            await _service.Add(book);
-            var books = await _service.GetBooks();
-            return View("Index", books);
+            try
+            {
+                await _service.Add(book);
+                var books = await _service.GetBooks();
+                return View("Index", books);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            var book = await _service.GetBookById(id);
-            return View(book);
+            try
+            {
+                var book = await _service.GetBookById(id);
+                return View(book);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Update(Book book)
         {
-            await _service.Update(book);
-            var model = await _service.GetBookById(book.Id);
-            return View("Details", model);
+            try
+            {
+                await _service.Update(book);
+                var model = await _service.GetBookById(book.Id);
+                return View("Details", model);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var book = await _service.GetBookById(id);
-            return View(book);
+            try
+            {
+                var book = await _service.GetBookById(id);
+                return View(book);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
+
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.DeleteBookById(id);
-            var books = await _service.GetBooks();
-            return View("Index", books);
+            try
+            {
+                await _service.DeleteBookById(id);
+                var books = await _service.GetBooks();
+                return View("Index", books);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "User")]
         public async Task<IActionResult> Borrow(Records record)
         {
-            record.UserId = userId;
-
-            await _service.BorrowBook(record);
-
-            return View("Message", new Data() { Message = "Borrow request has been sent!" });
+            try
+            {
+                record.UserId = userId;
+                await _service.BorrowBook(record);
+                return View("Message", new Data() { Message = "Borrow request has been sent!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Approve(int recordId)
         {
-            await _service.ApproveRecord(recordId);
-            return View("Message", new Data() { Message = "Approved succesfully!" });
+            try
+            {
+                await _service.ApproveRecord(recordId);
+                return View("Message", new Data() { Message = "Approved succesfully!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "User")]
         public async Task<IActionResult> Return(int recordId)
         {
-            await _service.ReturnBook(recordId);
-            return View("Message", new Data() { Message = "Returned succesfully!" });
+            try
+            {
+                await _service.ReturnBook(recordId);
+                return View("Message", new Data() { Message = "Returned succesfully!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
         }
 
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> SendEmails()
+        {
+            //https://myaccount.google.com/lesssecureapps?pli=1 allow less secure app: ON for receiving emails
+            try
+            {
+                var result = await _service.SendEmails();
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View("Message", new Data() { Message = ex.Message });
+            }
+
+        }
     }
 }

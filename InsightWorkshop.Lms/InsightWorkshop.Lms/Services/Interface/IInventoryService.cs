@@ -16,5 +16,7 @@ namespace InsightWorkshop.Lms.Services.Interface
         Task ReturnBook(int recordId);
         Task<IEnumerable<ApproveRecordsData>> GetUnapprovedRecords();
         Task<IEnumerable<ApproveRecordsData>> GetApprovedRecordsByUser(int userId);
+        Task<IEnumerable<ApproveRecordsData>> GetReturnedRecords();
+        Task<IEnumerable<ApproveRecordsData>> SendEmails();
     }
 }

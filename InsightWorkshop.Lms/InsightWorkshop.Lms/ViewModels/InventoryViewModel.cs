@@ -7,6 +7,7 @@ namespace InsightWorkshop.Lms.ViewModels
     {
         public IEnumerable<Book> Books { get; set; }
         public IEnumerable<ApproveRecordsData> Records { get; set; }
+        public IEnumerable<ApproveRecordsData> Returns { get; set; }
         public UserEnum Role { get; set; }
     }
 }

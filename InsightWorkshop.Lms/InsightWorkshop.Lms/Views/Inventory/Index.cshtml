@@ -5,17 +5,16 @@
 @{
     ViewData["Title"] = "Index";
 }
-<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
+<a class="btn btn-danger" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
 
-<h1>Books</h1>
-
-
+<hr />
 <p>
     @if (Model.Role == UserEnum.Admin)
     {
-        <a asp-action="Create">Create New</a>
+        <a class="btn btn-primary" asp-action="Create">Create New</a>
     }
 </p>
+<h3>Books</h3>
 <table class="table">
     <thead>
         <tr>
@@ -81,12 +80,19 @@
         }
     </tbody>
 
-    @if (Model.Role == UserEnum.Admin)
-    {
-        <partial name="_Approve" model="Model.Records"/>
-    }
-    else if (Model.Role == UserEnum.User)
-    {
-        <partial name="_Return" model="Model.Records"/>
-    }
 </table>
+
+@if (Model.Role == UserEnum.Admin)
+{
+    <h3>Returned records</h3>
+    <partial name="_ReturnedRecords" model="Model.Returns" />
+
+    <h3>Approve records</h3>
+    <partial name="_Approve" model="Model.Records" />
+
+    <a class="btn btn-info" asp-area="" asp-controller="Inventory" asp-action="SendEmails">Send email for late returns</a>
+}
+else if (Model.Role == UserEnum.User)
+{
+    <partial name="_Return" model="Model.Records" />
+}

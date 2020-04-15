@@ -96,7 +96,7 @@ CREATE PROCEDURE procApproveBook(@Id int, @ApprovedOn datetime, @Expiry datetime
 AS
 BEGIN
 	UPDATE Records
-	SET ApprovedOn =@ApprovedOn, @Expiry = @Expiry
+	SET ApprovedOn =@ApprovedOn, Expiry = @Expiry
 	WHERE Id= @Id
 END
 GO
@@ -156,4 +156,26 @@ BEGIN
 	INSERT INTO Users(Username,[Password],Email,RoleId)
 	VALUES (@Username,@Password,@Email,2)
 END
+GO
+
+CREATE PROCEDURE procGetReturnedRecords
+AS  
+BEGIN  
+	SELECT rec.Id as RecordId, rec.UserId as UserId, rec.BookId AS BookId,bk.Title as BookTitle, usr.Username as Username FROM Records rec
+	JOIN Books bk ON rec.BookId = bk.Id
+	JOIN Users usr ON rec.UserId = usr.Id
+	WHERE rec.ReturnStatus = 1
+	ORDER BY rec.Id DESC
+END  
+GO
+
+CREATE PROCEDURE procGetLateRecordsByDate(@Expiry datetime)
+AS  
+BEGIN  
+	SELECT rec.Id as RecordId, rec.UserId as UserId, rec.BookId AS BookId,bk.Title as BookTitle, usr.Username as Username, usr.Email as Email FROM Records rec
+	JOIN Books bk ON rec.BookId = bk.Id
+	JOIN Users usr ON rec.UserId = usr.Id
+	WHERE rec.Expiry <= @Expiry
+	ORDER BY rec.Id DESC
+END  
 GO

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using InsightWorkshop.Lms.Models;
 using InsightWorkshop.Lms.Repositories.Interface;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -76,11 +77,30 @@ namespace InsightWorkshop.Lms.Repositories.Repository
             return books;
         }
 
+        public async Task<IEnumerable<LateRecords>> GetLateRecordsByDate(DateTime dateTime)
+        {
+            IEnumerable<LateRecords> records;
+            records = await _db.QueryAsync<LateRecords>("procGetLateRecordsByDate", new
+            {
+                Expiry = dateTime
+            }, commandType: CommandType.StoredProcedure);
+
+            return records;
+        }
+
         public async Task<Records> GetRecordById(int recordId)
         {
             Records record;
             record = await _db.QueryFirstOrDefaultAsync<Records>("procGetRecordById", new { Id = recordId }, commandType: CommandType.StoredProcedure);
             return record;
+        }
+
+        public async Task<IEnumerable<ApproveRecordsData>> GetReturnedRecords()
+        {
+            IEnumerable<ApproveRecordsData> records;
+            records = await _db.QueryAsync<ApproveRecordsData>("procGetReturnedRecords", commandType: CommandType.StoredProcedure);
+
+            return records;
         }
 
         public async Task<IEnumerable<ApproveRecordsData>> GetUnapprovedRecords()
