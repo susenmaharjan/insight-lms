@@ -4,6 +4,7 @@ CREATE TABLE Roles
 	Type NVARCHAR(10)
 )
 GO
+--set username as nonclustured unique index, implemented in generated scripts
 CREATE TABLE Users
 (
 	Id INT IDENTITY(1,1) PRIMARY KEY,
